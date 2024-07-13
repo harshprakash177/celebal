@@ -1,0 +1,200 @@
+/* 1. LIST OF ALL CUSTOMERS
+	select * from customers
+*/
+
+/* 2. LIST OF ALL CUSTOMERS WHERE COMPABY NAME ENDING IN N
+	select * from customers where companyName like '%N'
+*/
+
+/* 3. LIST OF ALL CUSTOMERS WHO LIVE IN BERLIN OR LONDON
+	select * from customers where customer_city = 'Berlin' or customer_city = 'London'
+*/
+
+/* 4. LIST OF ALL CUSTOMERS WHO LIVE IN UK OR USA
+	select * from customers where country = 'UK' or country = 'USA'
+*/
+
+/* 5. LIST OF ALL PRODUCTS SORTED BY PRODUCT NAME
+	select * from products order by productName
+*/
+
+/* 6. LIST OF ALL PRODUCTS WHERE PRODUCT NAME STARTS WITH AN 'A'
+	select * from products where productName like 'a%'
+*/
+
+/* 7. LIST OF CUSTOMERS WHO EVER PLACED AN ORDER
+	select distinct customers.* from customers, orders 
+	where customers.customerID = orders.customerID
+*/
+
+/* 8. LIST OF CUSTOMERS WHO LIBVE IN LONDON AND HAVE BOUGHT CHAI
+	select customers.*, products.productName from customers, products
+	where customers.customer_city = 'London' and products.productName = 'chai'
+*/
+
+/* 9. LIST OF CUHSTOMERS WHO NEVER PLACED AN ORDER
+	select customers.* from customers left join orders
+	on customers.customerID = ordes.customerID
+	where orders.orderID is null
+*/
+
+/* 10. LIST OF CUSTOMERS WHO ORDERED TOFU
+	select customers.*, product.productName from customers, products
+	where products.productName = 'tofu'
+*/
+
+/* 11. DETAILS OF FIRST ORDER OF THE SYSTEM
+	select top 1 * from orders order by orders.orderDate
+*/
+
+/* 12. FIND THE DETAILS OF MOST EXPENSIVE ORDER DATE
+	select orders.*, most_expensive_order.totalcost from orders join
+	(
+		select top 1 o.orderID,
+		sum(o.unitPrice * o.quantity * (1 - o.discount)) as totalcost
+		from order_details o group by o.orderID order by totalcost desc
+	)
+	as most_expensive_order on orders.orderID = most_expensive_order.orderID
+*/
+
+/* 13. FOR EACH ORDER GET THE OrderID AND AVERAGE QUANTITY OF ITEMS IN THAT ORDER
+	select orderID, avg(quantity) as AverageQuantity from order_details
+	group by orderID order by orderID asc
+*/
+
+/* 14. FOR EACH ORDER GET THE OrderID, MINIMUM QUANTITY AND MAXIMUM QUANTITY FOR THAT ORDER
+	select orderID,min(quantity) as MinimunQuantity, max(quantity) as MaximumQuantity
+	from order_details group by orderID orde by orderID asc
+*/
+
+/* 15. GET A LIST OF ALL MANAGERS AND TOTAL NUMBER OF EMPLOYEES WHO REPORT TO THEM
+	select e.employeeID,e.employeeName,e.title,e.emp_city,e.country,count(e2.employeeID)
+	as [total number of employees who report ton them] from employees e left join employees
+	e2 on e.employeeID = e2.reportsTo where e.title = 'Sales Manager'
+	group by e.employeeID,e.employeeName,e.title,e.emp_city,e.country
+*/
+
+/* 16. GET THE OrderID AND THE TOTAL QUANTITY FOR EACH ORDER THAT HAS A TOTAL QUANTITY OF GREATER THAN 300
+	select distinct order_details.orderID, totalquantity.total_quantity from order_details join
+	(
+		select top 5 order_details.orderID, sum(order_details.quantity) as total_quantity
+		from order_details group by order_details.orderID order by total_quantity desc
+	)
+	as totalquantity on	order_details.orderIDv = totalquantity.orderID where total_quantity	> 300
+	
+										OR
+	select orderID, sum(quantity) as total_quantity from order_details group by orderID
+	having sum(quantity) > 300
+*/
+
+/* 17. LIST OF ALL ORDERS PLACED ON OR AFTER 1996/12/31
+	select * from orders where orderDate >= '1996-12-31' order by orderDate
+*/
+
+/* 18. LIST OF ALL ORDERS SHIPPED TO CANADA
+	select orders.*, customers.country from orders join customers
+	oon orders.customerID = customers.customerID
+	where customers.country = 'Canada' order by customerID
+*/
+
+/* 19. LIST OF ALL ORDERS WITH ORDER TOTAL > 200
+	select orderID, sum(quantity) as total_quantity	from order_details
+	group by orderID having sum(quantity) > 200 order by orderID
+*/
+
+/* 20. LIST OF COUNTRIES AND SALES MADE IN EACH COUNTRY
+	select customers.country, sum(orders.freight) as totalsales from customers left join orders
+	on customers.customerID = orders.customerID group by customers.country order by customers.country
+*/
+
+/* 21. LIST OF CUSTOMERS CONTACTNAME AND NUMBER OF ORDERS THEY PLACED
+	select customers.contactName, count(orders.orderID) as [No of orders] from customers left join orders
+	on customers.customerID = orders.customerID group by customers.contactName
+*/
+
+/* 22. LIST OF CUSTOMER CONTACTNAMES WHO HAVE PLACED MORE THAN 3 ORDERS
+	select customers.contactName, count(orders.orderID) as [No of orders] from customers left join orders
+	on customers.customerID = orders.customerID group by customers.contactName
+	having count(orders.orderID) > 3
+*/
+
+/* 23. LIST OF DISCONTINUED PRODUCTS WHICH WERE ORDERED BETWEEN 1/1/1997 TO 1/1/1998
+	select products.* from products inner join order_details on
+	products.productID = order_details.productID
+	where products.discontinued = 1 and orders.orderDate between '1997-01-01' and '1998-01-01'
+*/
+
+/* 24. LIST OF EMPLOYEE FIRSTNAME, LASTNAME, SUPERVISOR FIRSTNAME, LASTNAME
+	select substring(employeeName, 1, charindex(' ', employeeName) - 1) as emp_firstname,
+	substring(employeeName, charindex(' ', employeename) + 1, len(employeeName)) as emp_lastname
+	from employees where title = 'Sales Representative'
+
+	select substring(employeeName, 1, charindex(' ', employeeName) - 1) as supervisor_firstname,
+	substring(employeeName, charindex(' ', employeename) + 1, len(employeeName)) as supervisor_lastname
+	from employees where title = 'Sales Manager'
+*/
+
+/* 25. LIST OF EMPLOYEES ID  AND TOTAL SALES CONDUCTED BY EMPLOYEE
+	select employees.employeeID, count(orders.orderID) as totalSales from employees join orders
+	on employees.employeeID = orders.employeeID
+	group by employees.employeeID order by employees.employeeID
+*/
+
+/* 26. LIST OF EMPLOYEES WHOSE FIRST NAME CONTAINS CHARACTER 'A'
+	select employeeID, substring(employeeName, 1, charindex(' ', employeeName) - 1) as firstName,
+	employeeName, title from employees where substring(employeeName, 1, charindex(' ', employeeName) - 1)
+	like'%a%'
+*/
+
+/* 27. LIST OF MANAGERS WHO HAVE MORE THAN 4 PEOPLE REPORTING TO THEM 
+	select e.employeeID, e.employeeName, e.title, e.emp_city, e.country
+	from employees e join employees e2 on e.employeeID = e2.reportsTo where e.title = 'Sales Manager'
+	group by e.employeeID, e.employeeName, e.title, e.emp_city, e.country having count(e2.employeeID) > 4
+*/
+
+/* 28. LIST OF OREDRS AND PRODUCT NAMES
+	select o.orderID, o.orderDate, o.customerID, od.quantity, od.unitPrice, products.productName
+	from orders o inner join order_details od on o.orderID = od.orderID inner join products on 
+	od.productID = products.productID order by o.orderID
+*/
+
+/* 29. LIST OF ORDERS PLACED BY THE BEST CUSTOMER
+/* BEST CUSTOMER IN TERMS OF BUSINESS*/
+select orders.*, best_customer.business
+from orders join 
+	(
+		select top 1 o.orderID, sum(o.unitPrice * o.quantity * (1-o.discount)) as business
+		from order_details o group by o.orderID order by business desc
+	) as best_customer on orders.orderID = best_customer.orderID
+
+/* BEST CUSTOMER IN TERMS OF ORDER QUANTITY*/
+select top 1 orders.orderID,orders.customerID,orders.employeeID,orders.orderDate,
+orders.requiredDate,orders.shippedDate,orders.shipperID,orders.freight,
+sum(order_details.quantity) as orderQuantity
+from orders join order_details on orders.orderID = order_details.orderID
+group by orders.orderID,orders.customerID,orders.employeeID,orders.orderDate,
+orders.requiredDate,orders.shippedDate,orders.shipperID,orders.freight
+order by orderQuantity desc
+*/
+
+/* 30. LIST OF ORDERS PLACED BY CUSTOMERS WHO DO NOT HAVE A FAX NUMBER 
+select orders.* from orders join customers on orders.customerID = customers.customerID 
+where faxNumber is null
+*/ 
+
+/* 31. LIST OF POSTAL CODES(COUNTRY) WHERE THE PRODUCT TOFU WAS SHIPPED
+	select distinct customers.country, products.productName from products inner join order_details 
+	on products.productID = order_details.productID inner join orders
+	on order_details.orderID = orders.orderID inner join customers
+	on orders.customerID = customers.customerID
+	where products.productName = 'tofu'
+*/
+
+/* 32. LIST OF PRODUCT NAMES THAT WERE SHIPPED TO FRANCE
+	select distinct products.productName, customers.country from products inner join order_details 
+	on products.productID = order_details.productID inner join orders
+	on order_details.orderID = orders.orderID inner join customers
+	on orders.customerID = customers.customerID
+	where customers.country = 'France'
+	order by products.productName
+*/
