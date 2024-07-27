@@ -1,0 +1,40 @@
+-- Create a temporary table to store intermediate results
+CREATE TABLE #TempHZL_Table (
+    date DATE,
+    BU NVARCHAR(10),
+    value INTEGER
+);
+
+-- Insert initial data into the temporary table
+INSERT INTO #TempHZL_Table (date, BU, value)
+SELECT date, BU, value FROM HZL_Table;
+
+-- Update the temporary table until all NULL values are replaced
+DECLARE @UpdatedRows INT = 1;
+
+WHILE @UpdatedRows > 0
+BEGIN
+    UPDATE T
+    SET T.value = P.value
+    FROM #TempHZL_Table T
+    JOIN #TempHZL_Table P ON T.BU = P.BU AND T.date > P.date
+    WHERE T.value IS NULL AND P.value IS NOT NULL
+      AND NOT EXISTS (
+          SELECT 1
+          FROM #TempHZL_Table P2
+          WHERE T.BU = P2.BU AND T.date > P2.date AND P2.date > P.date AND P2.value IS NOT NULL
+      );
+
+    SET @UpdatedRows = @@ROWCOUNT;
+END;
+
+-- Update the original table with the results from the temporary table
+UPDATE H
+SET H.value = T.value
+FROM HZL_Table H
+JOIN #TempHZL_Table T ON H.date = T.date AND H.BU = T.BU;
+
+-- Drop the temporary table
+DROP TABLE #TempHZL_Table;
+
+SELECT * FROM HZL_Table ORDER BY BU, date;
